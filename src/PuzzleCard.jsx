@@ -82,9 +82,7 @@ function PuzzleCard({ clip, puzzleNumber, totalClips, totalScore, maxScore, puzz
           {onBack && (
             <button className="back-btn" onClick={onBack}>← Back</button>
           )}
-          <span className="card-label">
-            {vsMode ? `${clip?.skater?.name}` : `Puzzle ${puzzleNumber} of ${totalClips}`}
-          </span>
+          <span className="card-label">Puzzle {puzzleNumber} of {totalClips}</span>
         </div>
         <span className="card-guesses">{guessesLeft} guesses remaining</span>
       </div>
