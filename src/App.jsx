@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import PuzzleCard from './PuzzleCard'
+import StatsPage from './StatsPage'
 
 function App() {
   const [clips, setClips] = useState([])
@@ -11,6 +12,7 @@ function App() {
   const [mode, setMode] = useState('Daily')
   const [puzzleStates, setPuzzleStates] = useState({})
   const [showWelcome, setShowWelcome] = useState(true)
+  const [showStats, setShowStats] = useState(false)
   const puzzleStatesRef = useRef({})
 
   // Endless state
@@ -61,6 +63,21 @@ function App() {
     skipped: false,
     celebrating: false
   }
+
+  const allDone = mode !== 'Endless' && (mode === 'Sets' ? setsClips : clips).length > 0 && (mode === 'Sets' ? setsClips : clips).every(c => {
+    const state = getPuzzleState(c.id)
+    return state.solved || state.failed
+  })
+
+  useEffect(() => {
+    if (allDone && mode === 'Daily') {
+      const today = new Date().toISOString().split('T')[0]
+      const completed = JSON.parse(localStorage.getItem('completedDailies') || '[]')
+      if (!completed.includes(today)) {
+        localStorage.setItem('completedDailies', JSON.stringify([...completed, today]))
+      }
+    }
+  }, [allDone])
 
   const addEndlessClip = (excludeId = null) => {
     let currentUsed = usedEndlessIds
@@ -175,6 +192,13 @@ function App() {
       ...prev,
       [clipId]: { ...(prev[clipId] || {}), solved: true, points, celebrating: true }
     }))
+    if (mode === 'Daily') {
+      fetch('http://localhost:8080/api/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clipId, guessNumber: points === 3 ? 1 : points === 2 ? 2 : 3 })
+      })
+    }
     if (vsMode) {
       setVsResults(prev => [...prev, { clipId, correct: true }])
     }
@@ -205,6 +229,13 @@ function App() {
       ...prev,
       [clipId]: { ...(prev[clipId] || {}), failed: true }
     }))
+    if (mode === 'Daily') {
+      fetch('http://localhost:8080/api/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clipId, guessNumber: 0 })
+      })
+    }
     setTimeout(() => {
       if (mode === 'Endless') {
         const newClip = addEndlessClip(clipId)
@@ -309,12 +340,6 @@ function App() {
     alert('Copied to clipboard!')
   }
 
-  const activeClips = mode === 'Sets' ? setsClips : clips
-  const allDone = mode !== 'Endless' && activeClips.length > 0 && activeClips.every(c => {
-    const state = getPuzzleState(c.id)
-    return state.solved || state.failed
-  })
-
   const vsAllDone = vsMode && setsClips.length > 0 && setsClips.every(c => {
     const state = getPuzzleState(c.id)
     return state.solved || state.failed || state.skipped
@@ -332,7 +357,7 @@ function App() {
     ? setsIndex + 1
     : currentIndex + 1
 
-  const totalClips = mode === 'Endless' ? '∞' : activeClips.length
+  const totalClips = mode === 'Endless' ? '∞' : (mode === 'Sets' ? setsClips : clips).length
   const canGoBack = mode === 'Endless' ? endlessHistoryIndex > 0
     : mode === 'Sets' ? setsIndex > 0
     : currentIndex > 0
@@ -384,6 +409,8 @@ function App() {
           </div>
         </div>
       )}
+
+      {showStats && <StatsPage onClose={() => setShowStats(false)} />}
 
       {showSetsPopup && (
         <div className="sets-overlay">
@@ -472,6 +499,7 @@ function App() {
 
       <div className="content">
         <div className="header">
+          <button className="stats-btn" onClick={() => setShowStats(true)}>Stats</button>
           <div className="mode-corner">
             <label>Mode:&nbsp;</label>
             <select value={mode} onChange={e => handleModeChange(e.target.value)}>
