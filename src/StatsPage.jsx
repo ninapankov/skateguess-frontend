@@ -10,7 +10,7 @@ function StatsPage({ onClose }) {
   const todayCompleted = completedDailies.includes(today)
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/results/dates')
+    fetch('https://skateguess-api-production.up.railway.app/api/results/dates')
       .then(res => res.json())
       .then(data => setAvailableDates(data))
   }, [])
@@ -19,7 +19,7 @@ function StatsPage({ onClose }) {
     if (!canView(date)) return
     setSelectedDate(date)
     setLoading(true)
-    fetch(`http://localhost:8080/api/results/${date}`)
+    fetch(`https://skateguess-api-production.up.railway.app/api/results/${date}`)
       .then(res => res.json())
       .then(data => {
         setStatsData(data)

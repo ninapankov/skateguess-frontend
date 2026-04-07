@@ -38,19 +38,19 @@ function App() {
   }, [puzzleStates])
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/skaters')
+    fetch('https://skateguess-api-production.up.railway.app/api/skaters')
       .then(res => res.json())
       .then(data => setSkaters(data))
 
-    fetch('http://localhost:8080/api/daily')
+    fetch('https://skateguess-api-production.up.railway.app/api/daily')
       .then(res => res.json())
       .then(data => setClips(data))
 
-    fetch('http://localhost:8080/api/clips/season')
+    fetch('https://skateguess-api-production.up.railway.app/api/clips/season')
       .then(res => res.json())
       .then(data => setAllClips(data))
 
-    fetch('http://localhost:8080/api/clips/competitions')
+    fetch('https://skateguess-api-production.up.railway.app/api/clips/competitions')
       .then(res => res.json())
       .then(data => setCompetitions(data))
   }, [])
@@ -121,7 +121,7 @@ function App() {
   }
 
   const getRandomSetClips = (competition) => {
-    fetch(`http://localhost:8080/api/clips/competition/${competition}`)
+    fetch(`https://skateguess-api-production.up.railway.app/api/clips/competition/${competition}`)
       .then(res => res.json())
       .then(data => {
         const shuffled = [...data].sort(() => Math.random() - 0.5)
@@ -193,7 +193,7 @@ function App() {
       [clipId]: { ...(prev[clipId] || {}), solved: true, points, celebrating: true }
     }))
     if (mode === 'Daily') {
-      fetch('http://localhost:8080/api/results', {
+      fetch('https://skateguess-api-production.up.railway.app/api/results', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clipId, guessNumber: points === 3 ? 1 : points === 2 ? 2 : 3 })
@@ -230,7 +230,7 @@ function App() {
       [clipId]: { ...(prev[clipId] || {}), failed: true }
     }))
     if (mode === 'Daily') {
-      fetch('http://localhost:8080/api/results', {
+      fetch('https://skateguess-api-production.up.railway.app/api/results', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clipId, guessNumber: 0 })

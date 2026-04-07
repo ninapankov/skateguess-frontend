@@ -23,7 +23,7 @@ function PuzzleCard({ clip, puzzleNumber, totalClips, totalScore, maxScore, puzz
         setSuggestions(getVsSuggestions(val).map(s => ({ id: s.id, name: s.name })))
         setShowSuggestions(true)
       } else {
-        fetch('http://localhost:8080/api/skaters')
+        fetch('https://skateguess-api-production.up.railway.app/api/skaters')
           .then(res => res.json())
           .then(data => {
             const filtered = data.filter(s => s.name.toLowerCase().includes(val.toLowerCase()))
@@ -48,7 +48,7 @@ function PuzzleCard({ clip, puzzleNumber, totalClips, totalScore, maxScore, puzz
     if (!guess.trim() || isLocked) return
     setShowSuggestions(false)
 
-    fetch('http://localhost:8080/api/guess', {
+    fetch('https://skateguess-api-production.up.railway.app/api/guess', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
